@@ -13,9 +13,9 @@ typedef struct term* termPtr;
 	termPtr next;
 };
 
-void insertSorted(termPtr, int, int);
-void printPolynomial(termPtr );
-void readPolynomial(FILE*, termPtr);
+int insertSorted(termPtr, int, int);
+int printPolynomial(termPtr );
+int readPolynomial(char[], termPtr);
 termPtr addPolynomials(termPtr, termPtr);
 termPtr multiplyPolynomials(termPtr, termPtr);
 void freePolynomial(termPtr);
@@ -28,12 +28,19 @@ int main()
 		printf("Error opening files\n");
 		return -1;
 	}
+	char[20] f1;
+	char[20] f2;
+	printf("Insert file name\n");
+	scanf("%s", f1);
+	printf("Insert file name\n");
+	scanf("%s", f2);
+
 
 	struct term head1 = { 0, 0, NULL };
 	struct term head2 = { 0, 0, NULL };
 
-	readPolynomial(fp1, &head1);
-	readPolynomial(fp2, &head2);
+	readPolynomial(f1, &head1);
+	readPolynomial(f2, &head2);
 
 	fclose(fp1);
 	fclose(fp2);
@@ -59,9 +66,9 @@ int main()
 	freePolynomial(product);
 
 }
-void insertSorted(termPtr head, int coef, int exp) {
+int insertSorted(termPtr head, int coef, int exp) {
 	if (coef == 0)
-		return;
+		return -1;
 
 	termPtr p = head;
 	while (p->next != NULL && p->next->exp > exp)
@@ -75,21 +82,25 @@ void insertSorted(termPtr head, int coef, int exp) {
 			p->next = del->next;
 			free(del);
 		}
-		return;
+		return 1;
 	}
 	termPtr newTerm = (termPtr)malloc(sizeof(term));
+	if (newTerm == NULL) {
+		printf("Error\n");
+		return -1;
+	}
 	newTerm->coef = coef;
 	newTerm->exp = exp;
 	newTerm->next = p->next;
 	p->next = newTerm;
 
 }
-void printPolynomial(termPtr head) {
+int printPolynomial(termPtr head) {
 	termPtr p = head;
 
 	if (p == NULL) {
 		printf("empty\n");
-		return;
+		return -1;
 	}
 
 	while (p != NULL) {
@@ -102,12 +113,18 @@ void printPolynomial(termPtr head) {
 	}
 	printf("\n");
 }
-void readPolynomial(FILE* fp, termPtr head) {
+int readPolynomial(char[] f, termPtr head) {
 	
 	int coef, exp;
+	FILE* fp = fopen(f, "r");
+	if (fp == NULL) {
+		printf("Error\n");
+		return -1;
+	}
 	while (fscanf(fp, "%d %d", &coef, &exp) == 2) {
 		insertSorted(head, coef, exp);
 	}
+	return 0;
 }
 termPtr addPolynomials(termPtr head1, termPtr head2) {
 	struct term resultHead = { 0, 0, NULL };

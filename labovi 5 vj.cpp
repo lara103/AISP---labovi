@@ -17,22 +17,41 @@ struct _Node {
 };
 
 
-void ReadListFromFile(Position);
+int ReadListFromFile(Position);
 void PrintList(Position);
-void Intersection(Position, Position, Position);
-void Union(Position, Position, Position);
+int Intersection(Position, Position, Position);
+int Union(Position, Position, Position);
 void freeList(Position);
 
 int main(void) {
     Position headL1, headL2, headP, headU;
 
     headL1 = (Position)malloc(sizeof(struct _Node));
+    if (headL1 == NULL) {
+        printf("Error\n");
+        return -1;
+    }
     headL1->Next = NULL;
+
     headL2 = (Position)malloc(sizeof(struct _Node));
+    if (headL2 == NULL) {
+        printf("Error\n");
+        return -1;
+    }
     headL2->Next = NULL;
+
     headP = (Position)malloc(sizeof(struct _Node));
+    if (headP == NULL) {
+        printf("Error\n");
+        return -1;
+    }
     headP->Next = NULL;
+
     headU = (Position)malloc(sizeof(struct _Node));
+    if (headU == NULL) {
+        printf("Error\n");
+        return -1;
+    }
     headU->Next = NULL;
 
 
@@ -54,17 +73,15 @@ int main(void) {
     printf("\nUnion of L1 and L2: ");
     PrintList(headU->Next);
 
-
-   
-
     freeList(headL1);
     freeList(headL2);
     freeList(headP);
     freeList(headU);
 
+    return 0;
 }
 
-void ReadListFromFile(Position P) {
+int ReadListFromFile(Position P) {
     FILE* f;
     char filename[1024];
     Position q, tmp;
@@ -76,11 +93,15 @@ void ReadListFromFile(Position P) {
     f = fopen(filename, "r");
     if (f == NULL) {
         printf("\nError\n", filename);
-        return;
+        return -1;
     }
 
     while (fscanf(f, "%d", &value) == 1) {
         q = (Position)malloc(sizeof(struct _Node));
+        if (q == NULL) {
+            printf("Error\n");
+            return -1;
+        }
         q->Element = value;
 
         tmp = P;
@@ -92,8 +113,9 @@ void ReadListFromFile(Position P) {
     }
 
     fclose(f);
-}
 
+    return 0;
+}
 
 void PrintList(Position P) {
     while (P != NULL) {
@@ -103,8 +125,7 @@ void PrintList(Position P) {
     printf("\n");
 }
 
-
-void Intersection(Position L1, Position L2, Position P) {
+int Intersection(Position L1, Position L2, Position P) {
     Position q, tail = P;
 
     while (L1 != NULL && L2 != NULL) {
@@ -114,6 +135,10 @@ void Intersection(Position L1, Position L2, Position P) {
             L2 = L2->Next;
         else {
             q = (Position)malloc(sizeof(struct _Node));
+            if (q == NULL) {
+                printf("Error\n");
+                return -1;
+            }
             q->Element = L1->Element;
             q->Next = NULL;
             tail->Next = q;
@@ -123,10 +148,11 @@ void Intersection(Position L1, Position L2, Position P) {
             L2 = L2->Next;
         } 
     }
+    return 0;
 }
 
 
-void Union(Position L1, Position L2, Position U) {
+int Union(Position L1, Position L2, Position U) {
     Position q, tail = U;
 
     while (L1 != NULL && L2 != NULL) {
@@ -146,6 +172,10 @@ void Union(Position L1, Position L2, Position U) {
         }
         if (tail== U|| tail->Element != tmpEl) {
             q = (Position)malloc(sizeof(struct _Node));
+            if (q == NULL) {
+                printf("Error\n");
+                return -1;
+            }
             q->Element = tmpEl;
             q->Next = NULL;
             tail->Next = q;
@@ -162,6 +192,10 @@ void Union(Position L1, Position L2, Position U) {
     while (tmp != NULL) {
         if (tail->Element != tmp->Element) {
             q = (Position)malloc(sizeof(struct _Node));
+            if (q == NULL) {
+                printf("Error\n");
+                return -1;
+            }
             q->Element = tmp->Element;
             q->Next = NULL;
             tail->Next = q;
@@ -170,6 +204,7 @@ void Union(Position L1, Position L2, Position U) {
         }
         tmp = tmp->Next;
     }
+    return 0;
 }
 void freeList(Position head) {
     Position tmp;

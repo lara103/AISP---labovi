@@ -19,8 +19,8 @@ struct node {
 };
 
 int GetValueFromRange(int, int);
-void PushQueue(position, int);
-void PushStack(position, int);
+int PushQueue(position, int);
+int PushStack(position, int);
 void Pop(position);
 void PrintList(position);
 void FreeList(position);
@@ -92,17 +92,26 @@ void PrintList(position p) {
     printf("\n");
 }
 
-void PushStack(position p, int value) {
+int PushStack(position p, int value) {
     position temp = (position)malloc(sizeof(struct node));
+    if (temp == NULL) {
+        printf("Error\n");
+        return - 1;
+    }
     if (temp) {
         temp->element = value;
         temp->next = p->next;
         p->next = temp;
     }
+    return 0;
 }
 
-void PushQueue(position p, int value) {
+int PushQueue(position p, int value) {
     position temp = (position)malloc(sizeof(struct node));
+    if (temp == NULL) {
+        printf("Error\n");
+        return - 1;
+    }
     if (temp) {
         temp->element = value;
         temp->next = NULL;
@@ -110,6 +119,7 @@ void PushQueue(position p, int value) {
         while (last->next != NULL) last = last->next;
         last->next = temp;
     }
+    return 0;
 }
 
 void Pop(position p) {

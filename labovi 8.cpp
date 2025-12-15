@@ -13,7 +13,7 @@ struct Node {
     Position Next;
 };
 
-void Push(Position, int);
+int Push(Position, int);
 int Pop(Position);
 int Calculate(int, char, int);
 void FreeStack(Position);
@@ -61,14 +61,19 @@ int main(void)
     FreeStack(&Stack);
 }
 
-void Push(Position P, int n)
+int Push(Position P, int n)
 {
     Position q = (Position)malloc(sizeof(struct Node));
+    if (q == NULL) {
+        printf("Error\n");
+        return -1;
+    }
     if (q) {
         q->Element = n;
         q->Next = P->Next;
         P->Next = q;
     }
+    return 0;
 }
 
 int Pop(Position P)
