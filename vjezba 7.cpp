@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <time.h>
 
+
+
 struct QCvor;
 typedef struct QCvor* QPosition;
 
@@ -11,6 +13,8 @@ typedef struct QCvor {
     int Priority;
     QPosition Next;
 } QCvor;
+
+
 
 struct Cvor;
 typedef struct Cvor* Position;
@@ -21,19 +25,22 @@ typedef struct Cvor {
 } Cvor;
 
 
-int Stack(Position);
-int Queue(QPosition);
+
+int Stack(Position, QPosition);
+int Queue(QPosition, Position);
 
 int Push(Position, int);
 int Pop(Position);
-
 int Count(Position);
 int PrintList(Position);
-int CloseStack(Position);
+void CloseStack(Position);
 
 int Enqueue(QPosition);
 int Dequeue(QPosition);
 int PrintListQ(QPosition);
+void CloseQueue(QPosition);
+
+
 
 int main()
 {
@@ -55,10 +62,10 @@ int main()
         switch (choice)
         {
         case 1:
-            Stack(&head);
+            Stack(&head, &qhead);
             break;
         case 2:
-            Queue(&qhead);
+            Queue(&qhead, &head);
             break;
         case 3:
             break;
@@ -67,10 +74,14 @@ int main()
         }
     }
 
+    CloseStack(&head);
+    CloseQueue(&qhead);
     return 0;
 }
 
-int Stack(Position head)
+
+
+int Stack(Position head, QPosition qhead)
 {
     int max = 0;
 
@@ -90,25 +101,32 @@ int Stack(Position head)
         switch (choice)
         {
         case 1:
-            if (Push(head, max) == -1)
+            if (Push(head, max) == -1) {
                 printf("Error\n");
-            else
-                PrintList(head->Next);
+                CloseStack(head);
+                CloseQueue(qhead);
+                return -1;
+            }
+            PrintList(head->Next);
             break;
+
         case 2:
-            if (Pop(head) == -1)
+            if (Pop(head) == -1) {
                 printf("Error\n");
-            else
-                PrintList(head->Next);
+                CloseStack(head);
+                CloseQueue(qhead);
+                return -1;
+            }
+            PrintList(head->Next);
             break;
+
         case 3:
-            CloseStack(head);
-            break;
+            return 0;
+
         default:
             printf("Error\n");
         }
     }
-
     return 0;
 }
 
@@ -116,21 +134,18 @@ int Push(Position head, int max)
 {
     if (Count(head) >= max)
         return -1;
-    
 
-    Position q = (Position)malloc(sizeof(Cvor));
+    Position q = malloc(sizeof(Cvor));
     if (!q)
         return -1;
 
     q->El = rand() % 91 + 10;
 
-    if (head->Next == NULL)
-    {
+    if (!head->Next) {
         head->Next = q;
         q->Next = q;
     }
-    else
-    {
+    else {
         Position last = head->Next;
         while (last->Next != head->Next)
             last = last->Next;
@@ -146,14 +161,12 @@ int Push(Position head, int max)
 
 int Pop(Position head)
 {
-    if (head->Next == NULL)
+    if (!head->Next)
         return -1;
-    
 
     Position first = head->Next;
 
-    if (first->Next == first)
-    {
+    if (first->Next == first) {
         printf("Pop: %d\n", first->El);
         free(first);
         head->Next = NULL;
@@ -169,24 +182,21 @@ int Pop(Position head)
 
     printf("Pop: %d\n", first->El);
     free(first);
-
     return 0;
 }
 
 int Count(Position head)
 {
-    if (head->Next == NULL)
+    if (!head->Next)
         return 0;
 
     int count = 1;
     Position p = head->Next;
 
-    while (p->Next != head->Next)
-    {
+    while (p->Next != head->Next) {
         count++;
         p = p->Next;
     }
-
     return count;
 }
 
@@ -198,8 +208,7 @@ int PrintList(Position first)
     Position p = first;
     printf("Stack:");
 
-    do
-    {
+    do {
         printf(" %d", p->El);
         p = p->Next;
     } while (p != first);
@@ -208,14 +217,15 @@ int PrintList(Position first)
     return 0;
 }
 
-int CloseStack(Position head)
+void CloseStack(Position head)
 {
-    while (head->Next != NULL)
+    while (head->Next)
         Pop(head);
-    return 0;
 }
 
-int Queue(QPosition head)
+
+
+int Queue(QPosition head, Position stackHead)
 {
     int choice = 0;
 
@@ -227,30 +237,38 @@ int Queue(QPosition head)
         switch (choice)
         {
         case 1:
-            if (Enqueue(head) == -1)
+            if (Enqueue(head) == -1) {
                 printf("Error\n");
-            else
-                PrintListQ(head->Next);
+                CloseStack(stackHead);
+                CloseQueue(head);
+                return -1;
+            }
+            PrintListQ(head->Next);
             break;
+
         case 2:
-            if (Dequeue(head) == -1)
+            if (Dequeue(head) == -1) {
                 printf("Error\n");
-            else
-                PrintListQ(head->Next);
+                CloseStack(stackHead);
+                CloseQueue(head);
+                return -1;
+            }
+            PrintListQ(head->Next);
             break;
+
         case 3:
-            break;
+            return 0;
+
         default:
             printf("Error\n");
         }
     }
-
     return 0;
 }
 
 int Enqueue(QPosition head)
 {
-    QPosition q = (QPosition)malloc(sizeof(QCvor));
+    QPosition q = malloc(sizeof(QCvor));
     if (!q)
         return -1;
 
@@ -271,7 +289,6 @@ int Dequeue(QPosition head)
 {
     if (!head->Next)
         return -1;
-    
 
     QPosition q = head->Next;
     head->Next = q->Next;
@@ -284,8 +301,7 @@ int Dequeue(QPosition head)
 int PrintListQ(QPosition p)
 {
     printf("Queue:");
-    while (p)
-    {
+    while (p) {
         printf(" %d", p->El);
         p = p->Next;
     }
@@ -293,3 +309,8 @@ int PrintListQ(QPosition p)
     return 0;
 }
 
+void CloseQueue(QPosition head)
+{
+    while (head->Next)
+        Dequeue(head);
+}
