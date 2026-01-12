@@ -1,11 +1,7 @@
-﻿﻿//6. Napisati program koji pomoću vezanih listi simulira rad :
-//a) stoga,
-//b) reda.
-//Napomena: Funkcija "push" sprema cijeli broj, slučajno generirani u opsegu od 10 - 100.
 #define _CRT_SECURE_NO_WARNINGS
-#include<stdio.h>
-#include<stdlib.h>
-#include<time.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 
 #define MIN 10
 #define MAX 100
@@ -25,7 +21,7 @@ int Pop(position);
 void PrintList(position);
 void FreeList(position);
 
-int main(){
+int main() {
 
     srand((unsigned int)time(NULL));
 
@@ -35,8 +31,7 @@ int main(){
 
     int selection = 1;
 
-    while (selection != 0)
-    {
+    while (selection != 0) {
         printf("\n\t\t Menu \n");
         printf("0 - End program\n");
         printf("1 - Push on stack\n");
@@ -46,13 +41,16 @@ int main(){
         printf("\n\nChoice:\t");
         scanf_s(" %d", &selection);
 
-        switch (selection)
-        {
+        switch (selection) {
+
         case 1:
-            if (PushStack(&stack, GetValueFromRange(MIN, MAX)) == -1)
+            if (PushStack(&stack, GetValueFromRange(MIN, MAX)) == -1) {
                 printf("Error\n");
-            else
-                PrintList(stack.next);
+                FreeList(stack.next);
+                FreeList(queue.next);
+                return -1;
+            }
+            PrintList(stack.next);
             break;
 
         case 2:
@@ -63,10 +61,13 @@ int main(){
             break;
 
         case 3:
-            if (PushQueue(&queue, GetValueFromRange(MIN, MAX)) == -1)
+            if (PushQueue(&queue, GetValueFromRange(MIN, MAX)) == -1) {
                 printf("Error\n");
-            else
-                PrintList(queue.next);
+                FreeList(stack.next);
+                FreeList(queue.next);
+                return -1;
+            }
+            PrintList(queue.next);
             break;
 
         case 4:
@@ -92,16 +93,13 @@ int main(){
 
 
 
-
-int GetValueFromRange(int minValue, int maxValue)
-{
+int GetValueFromRange(int minValue, int maxValue) {
     return rand() % (maxValue - minValue + 1) + minValue;
 }
 
 void PrintList(position p) {
-    printf("\nList: \n");
-    while (p)
-    {
+    printf("\nList:\n");
+    while (p) {
         printf("%d ", p->element);
         p = p->next;
     }
@@ -110,43 +108,42 @@ void PrintList(position p) {
 
 int PushStack(position p, int value) {
     position temp = (position)malloc(sizeof(struct node));
-    if (temp == NULL) {
-        printf("Error\n");
+    if (temp == NULL)
         return -1;
-    }
-    if (temp) {
-        temp->element = value;
-        temp->next = p->next;
-        p->next = temp;
-    }
+
+    temp->element = value;
+    temp->next = p->next;
+    p->next = temp;
+
     return 0;
 }
 
 int PushQueue(position p, int value) {
     position temp = (position)malloc(sizeof(struct node));
-    if (temp == NULL) {
-        printf("Error\n");
+    if (temp == NULL)
         return -1;
-    }
-    if (temp) {
-        temp->element = value;
-        temp->next = NULL;
-        position last = p;
-        while (last->next != NULL) last = last->next;
-        last->next = temp;
-    }
+
+    temp->element = value;
+    temp->next = NULL;
+
+    position last = p;
+    while (last->next != NULL)
+        last = last->next;
+
+    last->next = temp;
     return 0;
 }
 
 int Pop(position p) {
-    if (p->next != NULL) {
-        position temp = p->next;
-        p->next = temp->next;
-        free(temp);
-        return 0; 
-    }
-    return -1;
+    if (p->next == NULL)
+        return -1;
+
+    position temp = p->next;
+    p->next = temp->next;
+    free(temp);
+    return 0;
 }
+
 void FreeList(position head) {
     position temp;
     while (head != NULL) {
