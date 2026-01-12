@@ -1,5 +1,3 @@
-﻿﻿//8. Napisati program koji iz datoteke čita postfiks izraz i zatim korištenjem stoga računa rezultat.Stog
-//je potrebno realizirati preko vezane liste.
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <stdlib.h>
@@ -31,71 +29,91 @@ int main(void)
 
     file = fopen(filename, "r");
     if (file == NULL) {
-        printf("Error\n", filename);
-        return 1;
+        printf("Error\n");
+        return -1;
     }
 
     printf("\nExpression: ");
     char token[32] = { 0 };
     int x;
+
     while (fscanf(file, "%s", token) == 1) {
         printf(" %s", token);
 
         x = atoi(token);
         if (x == 0 && token[0] != '0') {
             int a, b, result;
+
             if (Stack.Next == NULL) {
-                printf("Error not enough nubers on stack\n", token);
+                printf("Error not enough numbers on stack\n");
+                fclose(file);
+                FreeStack(&Stack);
                 return -1;
             }
             b = Pop(&Stack);
 
             if (Stack.Next == NULL) {
-                printf("Error not enough nubers on stack\n", token);
+                printf("Error not enough numbers on stack\n");
+                fclose(file);
+                FreeStack(&Stack);
                 return -1;
             }
             a = Pop(&Stack);
+
             result = Calculate(a, token[0], b);
-            if (Push(&Stack, result) == -1)
+            if (Push(&Stack, result) == -1) {
                 printf("Error\n");
+                fclose(file);
+                FreeStack(&Stack);
+                return -1;
+            }
         }
         else {
-            if (Push(&Stack, x) == -1)
-                printf("Error");
+            if (Push(&Stack, x) == -1) {
+                printf("Error\n");
+                fclose(file);
+                FreeStack(&Stack);
+                return -1;
+            }
         }
     }
+
     fclose(file);
+
     if (Stack.Next == NULL) {
         printf("Error\n");
+        FreeStack(&Stack);
+        return -1;
     }
     else {
         int final = Pop(&Stack);
 
         if (Stack.Next != NULL) {
-            printf("Error too much nubers\n");
+            printf("Error too much numbers\n");
+            FreeStack(&Stack);
+            return -1;
         }
         else {
-            printf("\nResult: % d\n", final);
+            printf("\nResult: %d\n", final);
         }
-
-   
     }
- 
+
     FreeStack(&Stack);
+    return 0;
 }
+
+
+
 int Push(Position P, int n)
 {
     Position q = (Position)malloc(sizeof(struct Node));
-
-    if (q == NULL) {
-        printf("Error\n");
+    if (q == NULL)
         return -1;
-    }
-    if (q) {
-        q->Element = n;
-        q->Next = P->Next;
-        P->Next = q;
-    }
+
+    q->Element = n;
+    q->Next = P->Next;
+    P->Next = q;
+
     return 0;
 }
 
@@ -103,6 +121,7 @@ int Pop(Position P)
 {
     Position tmp;
     int n = 0;
+
     if (P->Next != NULL) {
         tmp = P->Next;
         P->Next = tmp->Next;
@@ -115,6 +134,7 @@ int Pop(Position P)
 int Calculate(int x, char op, int y)
 {
     int result = 0;
+
     switch (op) {
     case '+':
         result = x + y;
@@ -129,18 +149,19 @@ int Calculate(int x, char op, int y)
         if (y != 0)
             result = x / y;
         else
-            printf("\nError \n");
+            printf("Error division by zero\n");
         break;
     case '%':
         result = x % y;
         break;
     default:
-        break;
+        printf("Unknown operator\n");
     }
     return result;
 }
-void FreeStack(Position P) {
 
+void FreeStack(Position P)
+{
     Position tmp;
     while (P->Next != NULL) {
         tmp = P->Next;
