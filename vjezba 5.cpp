@@ -1,9 +1,3 @@
-﻿//Za dvije sortirane liste L1 i L2(mogu se pročitati iz datoteke ili unijeti ručno, bitno je samo da su
-//	sortirane), napisati program koji stvara novu vezanu listu tako da računa :
-//a) L1∪L2,
-//b) L1∩ L2.
-//Liste osim pokazivača na slijedeću strukturu imaju i jedan cjelobrojni element, po kojem su
-//sortirane
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,7 +10,6 @@ struct _Node {
     Position Next;
 };
 
-
 int ReadListFromFile(Position);
 void PrintList(Position);
 int Intersection(Position, Position, Position);
@@ -24,7 +17,7 @@ int Union(Position, Position, Position);
 void freeList(Position);
 
 int main(void) {
-    Position headL1, headL2, headP, headU;
+    Position headL1 = NULL, headL2 = NULL, headP = NULL, headU = NULL;
 
     headL1 = (Position)malloc(sizeof(struct _Node));
     if (headL1 == NULL) {
@@ -36,6 +29,7 @@ int main(void) {
     headL2 = (Position)malloc(sizeof(struct _Node));
     if (headL2 == NULL) {
         printf("Error\n");
+        freeList(headL1);
         return -1;
     }
     headL2->Next = NULL;
@@ -43,6 +37,8 @@ int main(void) {
     headP = (Position)malloc(sizeof(struct _Node));
     if (headP == NULL) {
         printf("Error\n");
+        freeList(headL1);
+        freeList(headL2);
         return -1;
     }
     headP->Next = NULL;
@@ -50,15 +46,30 @@ int main(void) {
     headU = (Position)malloc(sizeof(struct _Node));
     if (headU == NULL) {
         printf("Error\n");
+        freeList(headL1);
+        freeList(headL2);
+        freeList(headP);
         return -1;
     }
     headU->Next = NULL;
 
-
-    if(ReadListFromFile(headL1)==-1)
-        printf("Error");
-    if(ReadListFromFile(headL2)==-1)
+    if (ReadListFromFile(headL1) == -1) {
         printf("Error\n");
+        freeList(headL1);
+        freeList(headL2);
+        freeList(headP);
+        freeList(headU);
+        return -1;
+    }
+
+    if (ReadListFromFile(headL2) == -1) {
+        printf("Error\n");
+        freeList(headL1);
+        freeList(headL2);
+        freeList(headP);
+        freeList(headU);
+        return -1;
+    }
 
     printf("\nList L1: ");
     PrintList(headL1->Next);
@@ -66,19 +77,30 @@ int main(void) {
     printf("\nList L2: ");
     PrintList(headL2->Next);
 
-   if( Intersection(headL1->Next, headL2->Next, headP)==-1)
-       printf("Error\n");
-   else {
-       printf("\nIntersection of L1 and L2: ");
-       PrintList(headP->Next);
-   }
+    if (Intersection(headL1->Next, headL2->Next, headP) == -1) {
+        printf("Error\n");
+        freeList(headL1);
+        freeList(headL2);
+        freeList(headP);
+        freeList(headU);
+        return -1;
+    }
 
-   if( Union(headL1->Next, headL2->Next, headU)==-1)
-       printf("Error");
-   else {
-       printf("\nUnion of L1 and L2: ");
-       PrintList(headU->Next);
-   }
+    printf("\nIntersection of L1 and L2: ");
+    PrintList(headP->Next);
+
+    if (Union(headL1->Next, headL2->Next, headU) == -1) {
+        printf("Error\n");
+        freeList(headL1);
+        freeList(headL2);
+        freeList(headP);
+        freeList(headU);
+        return -1;
+    }
+
+    printf("\nUnion of L1 and L2: ");
+    PrintList(headU->Next);
+
     freeList(headL1);
     freeList(headL2);
     freeList(headP);
@@ -98,7 +120,7 @@ int ReadListFromFile(Position P) {
 
     f = fopen(filename, "r");
     if (f == NULL) {
-        printf("\nError\n", filename);
+        printf("Error\n");
         return -1;
     }
 
@@ -120,7 +142,6 @@ int ReadListFromFile(Position P) {
     }
 
     fclose(f);
-
     return 0;
 }
 
@@ -158,12 +179,12 @@ int Intersection(Position L1, Position L2, Position P) {
     return 0;
 }
 
-
 int Union(Position L1, Position L2, Position U) {
     Position q, tail = U;
 
     while (L1 != NULL && L2 != NULL) {
         int tmpEl;
+
         if (L1->Element > L2->Element) {
             tmpEl = L1->Element;
             L1 = L1->Next;
@@ -177,6 +198,7 @@ int Union(Position L1, Position L2, Position U) {
             L1 = L1->Next;
             L2 = L2->Next;
         }
+
         if (tail == U || tail->Element != tmpEl) {
             q = (Position)malloc(sizeof(struct _Node));
             if (q == NULL) {
@@ -190,11 +212,7 @@ int Union(Position L1, Position L2, Position U) {
         }
     }
 
-    Position tmp;
-    if (L1 != NULL)
-        tmp = L1;
-    else
-        tmp = L2;
+    Position tmp = (L1 != NULL) ? L1 : L2;
 
     while (tmp != NULL) {
         if (tail->Element != tmp->Element) {
@@ -207,12 +225,12 @@ int Union(Position L1, Position L2, Position U) {
             q->Next = NULL;
             tail->Next = q;
             tail = q;
-
         }
         tmp = tmp->Next;
     }
     return 0;
 }
+
 void freeList(Position head) {
     Position tmp;
     while (head != NULL) {
